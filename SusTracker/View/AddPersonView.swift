@@ -30,6 +30,7 @@ struct AddPersonView: View {
                 .padding()
                 
                 HStack {
+                    Spacer()
                     Button("Submit") {
                         DataController().addPerson(name: name, minutes: minutes, context: managedObjectContext)
                         dismiss()

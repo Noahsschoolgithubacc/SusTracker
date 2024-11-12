@@ -29,11 +29,46 @@ struct ContentView: View {
                     .padding(.horizontal)
                 List {
                     ForEach(person) { person in
-                        
+                        NavigationLink(destination: EditPerson(person: person)) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(person.name!)
+                                        .bold()
+                                    
+                                    Text("\(Int(person.minutes))") + Text(" minutes.")
+                                        .foregroundColor(.red)
+                                    
+                                }
+                                Spacer()
+                                Text(calcTimeSince(date: person.date!))
+                                    .foregroundColor(.gray)
+                                    .italic()
+                                
+                            }
+                        }
+                    }
+                    .onDelete(perform: deletePerson)
+                }
+                .listStyle(.plain)
+            }
+            .navigationTitle("Sus Tracker")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button {
+                        showingAddView.toggle()
+                    } label: {
+                        Label("Add", systemImage: "plus.circle")
                     }
                 }
+                ToolbarItem(placement: .navigationBarLeading) {
+                    EditButton()
+                }
+            }
+            .sheet(isPresented: $showingAddView) {
+                AddPersonView()
             }
         }
+        .navigationViewStyle(.stack)
     }
     
     // calcs the total minutes recorded
@@ -46,6 +81,16 @@ struct ContentView: View {
         }
         print("Total minutes today: \(minutesToday)")
         return minutesToday
+    }
+    
+    // deletes a person
+    private func deletePerson(offsets: IndexSet) {
+        withAnimation {
+            offsets.map { person[$0] }
+                .forEach(managedObjContext.delete)
+            
+            DataController().save(context: managedObjContext)
+        }
     }
 }
 
